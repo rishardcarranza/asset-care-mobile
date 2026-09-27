@@ -1,0 +1,139 @@
+{
+  "app_name": "Asset Care",
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "close": "Close",
+    "loading": "Loading...",
+    "offline_mode": "Offline Mode",
+    "online": "Online",
+    "sync_now": "Sync Now",
+    "synced": "Up to date",
+    "syncing": "Syncing...",
+    "sync_failed": "Sync failed",
+    "last_synced": "Last sync: {{time}}",
+    "never_synced": "Never synced"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "assets": "Assets",
+    "settings": "Settings"
+  },
+  "categories": {
+    "vehicle": "Vehicle",
+    "motorcycle": "Motorcycle",
+    "hvac": "A/C & Heating",
+    "appliance": "Appliance",
+    "other": "Other"
+  },
+  "metrics": {
+    "odometer": "Odometer",
+    "time_days": "Days",
+    "time_months": "Months",
+    "usage_hours": "Operating Hours"
+  },
+  "units": {
+    "km": "km",
+    "mi": "mi",
+    "days": "days",
+    "months": "months",
+    "hours": "hrs"
+  },
+  "status": {
+    "ok": "Healthy",
+    "due_soon": "Due Soon",
+    "overdue": "Overdue"
+  },
+  "dashboard": {
+    "title": "My Assets",
+    "overview": "Overview",
+    "filter_all": "All",
+    "empty_title": "No Assets Registered",
+    "empty_subtitle": "Add your vehicle, motorcycle, or equipment to track maintenance schedule.",
+    "add_first_asset": "Add Asset",
+    "attention_needed": "{{count}} assets require maintenance"
+  },
+  "asset_form": {
+    "title_new": "Add New Asset",
+    "title_edit": "Edit Asset",
+    "general_section": "General Information",
+    "name_label": "Asset Name",
+    "name_placeholder": "e.g. Kia Sportage, KTM Duke 390",
+    "category_label": "Category",
+    "description_label": "Description / Notes",
+    "description_placeholder": "Optional details, license plate, serial, etc.",
+    "telemetry_section": "Telemetry & Specifications",
+    "odometer_label": "Current Odometer Reading",
+    "odometer_unit_label": "Unit",
+    "engine_label": "Engine Code / Specs",
+    "oil_type_label": "Recommended Oil Grade",
+    "oil_type_placeholder": "e.g. 5W-20, 10W-40 JASO MA2",
+    "displacement_label": "Displacement (cc)",
+    "drive_type_label": "Drive Type",
+    "drive_type_chain": "Chain",
+    "drive_type_belt": "Belt",
+    "drive_type_shaft": "Shaft",
+    "cooling_type_label": "Cooling System",
+    "cooling_type_air": "Air Cooled",
+    "cooling_type_liquid": "Liquid Cooled",
+    "cooling_type_oil": "Oil Cooled",
+    "btu_label": "Cooling Capacity (BTU)",
+    "refrigerant_label": "Refrigerant Gas",
+    "brand_label": "Brand / Manufacturer",
+    "model_label": "Model Number",
+    "create_button": "Create Asset",
+    "update_button": "Update Asset"
+  },
+  "asset_detail": {
+    "health_summary": "Preventive Health",
+    "no_rules": "No maintenance rules configured.",
+    "add_rule": "Add Rule",
+    "log_service": "Log Service",
+    "history_tab": "Service History",
+    "rules_tab": "Interval Rules",
+    "specs_tab": "Specifications",
+    "remaining": "{{val}} {{unit}} remaining",
+    "overdue_by": "{{val}} {{unit}} overdue",
+    "last_serviced": "Last service: {{date}}",
+    "empty_history": "No service logs recorded yet.",
+    "delete_confirm_title": "Delete Asset",
+    "delete_confirm_msg": "Are you sure you want to delete this asset and its maintenance history?"
+  },
+  "rule_form": {
+    "title": "New Maintenance Rule",
+    "type_label": "Maintenance Type",
+    "type_placeholder": "e.g. Oil Change, Chain Lube, Filter Wash",
+    "trigger_by": "Trigger Interval By",
+    "interval_label": "Interval Value",
+    "interval_placeholder": "e.g. 5000, 800, 3",
+    "unit_label": "Unit",
+    "notes_label": "Notes / Recommendations",
+    "save_button": "Save Rule"
+  },
+  "log_form": {
+    "title": "Log Completed Service",
+    "type_label": "Service Performed",
+    "service_date_label": "Date of Service",
+    "odometer_at_service": "Odometer / Reading at Service",
+    "cost_label": "Cost ($)",
+    "notes_label": "Notes / Parts Replaced",
+    "performed_by_label": "Workshop / Technician",
+    "save_button": "Record Service"
+  },
+  "settings": {
+    "title": "Settings",
+    "language_section": "Language",
+    "select_language": "App Language",
+    "lang_en": "English",
+    "lang_es": "Español",
+    "sync_section": "Synchronization",
+    "sync_description": "Data is stored offline on this device. Sync updates with the Asset Care cloud API.",
+    "about_section": "About",
+    "version": "Version 1.0.0 (Offline-First)"
+  }
+}

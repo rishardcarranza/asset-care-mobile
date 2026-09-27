@@ -1,0 +1,139 @@
+{
+  "app_name": "Asset Care",
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Atrás",
+    "confirm": "Confirmar",
+    "retry": "Reintentar",
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "offline_mode": "Modo Fuera de Línea",
+    "online": "En línea",
+    "sync_now": "Sincronizar ahora",
+    "synced": "Actualizado",
+    "syncing": "Sincronizando...",
+    "sync_failed": "Error de sincronización",
+    "last_synced": "Última sincronización: {{time}}",
+    "never_synced": "Nunca sincronizado"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "assets": "Activos",
+    "settings": "Ajustes"
+  },
+  "categories": {
+    "vehicle": "Vehículo",
+    "motorcycle": "Motocicleta",
+    "hvac": "Climatización / AC",
+    "appliance": "Electrodoméstico",
+    "other": "Otro"
+  },
+  "metrics": {
+    "odometer": "Odómetro",
+    "time_days": "Días",
+    "time_months": "Meses",
+    "usage_hours": "Horas de uso"
+  },
+  "units": {
+    "km": "km",
+    "mi": "mi",
+    "days": "días",
+    "months": "meses",
+    "hours": "hrs"
+  },
+  "status": {
+    "ok": "Al día",
+    "due_soon": "Próximo a vencer",
+    "overdue": "Vencido"
+  },
+  "dashboard": {
+    "title": "Mis Activos",
+    "overview": "Resumen",
+    "filter_all": "Todos",
+    "empty_title": "Sin Activos Registrados",
+    "empty_subtitle": "Agrega tu vehículo, motocicleta o equipo para controlar sus mantenimientos.",
+    "add_first_asset": "Agregar Activo",
+    "attention_needed": "{{count}} activos requieren atención"
+  },
+  "asset_form": {
+    "title_new": "Nuevo Activo",
+    "title_edit": "Editar Activo",
+    "general_section": "Información General",
+    "name_label": "Nombre del Activo",
+    "name_placeholder": "ej. Kia Sportage, KTM Duke 390",
+    "category_label": "Categoría",
+    "description_label": "Descripción / Notas",
+    "description_placeholder": "Detalles, placa, número de serie, etc.",
+    "telemetry_section": "Telemetría y Especificaciones",
+    "odometer_label": "Lectura Actual del Odómetro",
+    "odometer_unit_label": "Unidad",
+    "engine_label": "Código / Tipo de Motor",
+    "oil_type_label": "Grado de Aceite Recomendado",
+    "oil_type_placeholder": "ej. 5W-20, 10W-40 JASO MA2",
+    "displacement_label": "Cilindraje (cc)",
+    "drive_type_label": "Tipo de Tracción",
+    "drive_type_chain": "Cadena",
+    "drive_type_belt": "Faja / Banda",
+    "drive_type_shaft": "Cardán / Eje",
+    "cooling_type_label": "Sistema de Enfriamiento",
+    "cooling_type_air": "Por Aire",
+    "cooling_type_liquid": "Por Líquido",
+    "cooling_type_oil": "Por Aceite",
+    "btu_label": "Capacidad (BTU)",
+    "refrigerant_label": "Gas Refrigerante",
+    "brand_label": "Marca / Fabricante",
+    "model_label": "Modelo",
+    "create_button": "Crear Activo",
+    "update_button": "Actualizar Activo"
+  },
+  "asset_detail": {
+    "health_summary": "Salud Preventiva",
+    "no_rules": "No hay reglas de mantenimiento configuradas.",
+    "add_rule": "Nueva Regla",
+    "log_service": "Registrar Servicio",
+    "history_tab": "Historial",
+    "rules_tab": "Reglas de Intervalo",
+    "specs_tab": "Especificaciones",
+    "remaining": "{{val}} {{unit}} restantes",
+    "overdue_by": "{{val}} {{unit}} vencido",
+    "last_serviced": "Último servicio: {{date}}",
+    "empty_history": "No hay servicios registrados aún.",
+    "delete_confirm_title": "Eliminar Activo",
+    "delete_confirm_msg": "¿Seguro que deseas eliminar este activo y todo su historial?"
+  },
+  "rule_form": {
+    "title": "Nueva Regla de Mantenimiento",
+    "type_label": "Tipo de Mantenimiento",
+    "type_placeholder": "ej. Cambio de aceite, Lubricar cadena, Lavar filtros",
+    "trigger_by": "Medición del Intervalo",
+    "interval_label": "Valor del Intervalo",
+    "interval_placeholder": "ej. 5000, 800, 3",
+    "unit_label": "Unidad",
+    "notes_label": "Notas / Recomendaciones",
+    "save_button": "Guardar Regla"
+  },
+  "log_form": {
+    "title": "Registrar Servicio Realizado",
+    "type_label": "Servicio Efectuado",
+    "service_date_label": "Fecha del Servicio",
+    "odometer_at_service": "Lectura de Odómetro al Realizarlo",
+    "cost_label": "Costo ($)",
+    "notes_label": "Notas / Repuestos Reemplazados",
+    "performed_by_label": "Taller o Mecánico",
+    "save_button": "Guardar Registro"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language_section": "Idioma",
+    "select_language": "Idioma de la Aplicación",
+    "lang_en": "English",
+    "lang_es": "Español",
+    "sync_section": "Sincronización",
+    "sync_description": "Tus datos se guardan en este dispositivo (Offline-First) y se sincronizan con la nube de Asset Care.",
+    "about_section": "Acerca de",
+    "version": "Versión 1.0.0 (Offline-First)"
+  }
+}
