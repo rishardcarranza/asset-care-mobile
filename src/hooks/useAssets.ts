@@ -84,6 +84,37 @@ export const useAssets = (filterType?: AssetType) => {
     [loadAssets]
   );
 
+  const updateAsset = useCallback(
+    (
+      id: string,
+      data: {
+        name?: string;
+        asset_type?: AssetType;
+        description?: string | null;
+        metadata_payload?: DynamicMetadataPayload;
+      }
+    ) => {
+      const existingAsset = AssetDao.getById(id);
+      if (!existingAsset) return null;
+
+      const now = new Date().toISOString();
+      const updatedAsset: Asset = {
+        ...existingAsset,
+        ...(data.name && { name: data.name }),
+        ...(data.asset_type && { asset_type: data.asset_type }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.metadata_payload && { metadata_payload: data.metadata_payload }),
+        updated_at: now,
+        sync_status: "pending",
+      };
+
+      AssetDao.upsert(updatedAsset, "pending");
+      loadAssets();
+      return updatedAsset;
+    },
+    [loadAssets]
+  );
+
   const deleteAsset = useCallback(
     (id: string): void => {
       AssetDao.softDelete(id);
@@ -97,6 +128,7 @@ export const useAssets = (filterType?: AssetType) => {
     isLoading,
     refresh: loadAssets,
     createAsset,
+    updateAsset,
     deleteAsset,
   };
 };

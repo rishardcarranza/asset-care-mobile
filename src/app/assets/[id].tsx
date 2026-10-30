@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Alert, FlatList, ScrollView, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState, useCallback } from "react";
+import { Alert, FlatList, ScrollView, View, Image } from "react-native";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import {
   Badge,
   Button,
@@ -18,6 +18,7 @@ import {
 } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { getAbsoluteImageUri } from "../../services/imageService";
 
 import { useAssetDetails } from "../../hooks/useAssetDetails";
 import { useAssets } from "../../hooks/useAssets";
@@ -29,10 +30,16 @@ export default function AssetDetailScreen() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const { asset, rules, logs, health, deleteRule, deleteLog } = useAssetDetails(id);
+  const { asset, rules, logs, health, deleteRule, deleteLog, refresh } = useAssetDetails(id);
   const { deleteAsset } = useAssets();
 
-  const [activeTab, setActiveTab] = useState<string>("rules");
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
+  const [activeTab, setActiveTab] = useState<string>("history");
   const [deleteDialogVisible, setDeleteDialogVisible] = useState<boolean>(false);
 
   if (!asset) {
@@ -80,6 +87,7 @@ export default function AssetDetailScreen() {
               <Badge style={{ backgroundColor: statusColor, color: "#FFF", marginRight: 8 }}>
                 {t(`status.${status}`)}
               </Badge>
+              <IconButton icon="pencil-outline" size={20} onPress={() => router.push(`/assets/${asset.id}/edit-rule?ruleId=${item.id}` as any)} />
               <IconButton icon="delete-outline" size={20} onPress={() => deleteRule(item.id)} />
             </View>
           )}
@@ -108,7 +116,10 @@ export default function AssetDetailScreen() {
           title={item.maintenance_type}
           subtitle={new Date(item.service_date).toLocaleDateString()}
           right={(props) => (
-            <IconButton icon="delete-outline" size={20} onPress={() => deleteLog(item.id)} />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <IconButton icon="pencil-outline" size={20} onPress={() => router.push(`/assets/${asset.id}/edit-log?logId=${item.id}` as any)} />
+              <IconButton icon="delete-outline" size={20} onPress={() => deleteLog(item.id)} />
+            </View>
           )}
         />
         <Card.Content>
@@ -137,9 +148,15 @@ export default function AssetDetailScreen() {
     );
   };
 
+  const payload = (asset?.metadata_payload || {}) as Record<string, unknown>;
+  const imageUri = payload.image_uri ? getAbsoluteImageUri(String(payload.image_uri)) : null;
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       {/* Top Banner */}
+      {imageUri && (
+        <Image source={{ uri: imageUri }} style={{ width: "100%", height: 220, resizeMode: "cover" }} />
+      )}
       <Surface style={{ padding: 16, backgroundColor: theme.colors.surface, elevation: 1 }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flex: 1 }}>
@@ -150,7 +167,10 @@ export default function AssetDetailScreen() {
               {t(`categories.${asset.asset_type}`)}
             </Text>
           </View>
-          <IconButton icon="delete" iconColor={theme.colors.error} onPress={() => setDeleteDialogVisible(true)} />
+          <View style={{ flexDirection: "row" }}>
+            <IconButton icon="pencil" iconColor={theme.colors.primary} onPress={() => router.push(`/assets/${asset.id}/edit` as any)} />
+            <IconButton icon="delete" iconColor={theme.colors.error} onPress={() => setDeleteDialogVisible(true)} />
+          </View>
         </View>
 
         {/* Action Buttons */}
@@ -180,8 +200,8 @@ export default function AssetDetailScreen() {
           value={activeTab}
           onValueChange={setActiveTab}
           buttons={[
-            { value: "rules", label: t("asset_detail.rules_tab"), icon: "timer-cog-outline" },
             { value: "history", label: t("asset_detail.history_tab"), icon: "history" },
+            { value: "rules", label: t("asset_detail.rules_tab"), icon: "timer-cog-outline" },
             { value: "specs", label: t("asset_detail.specs_tab"), icon: "information-outline" },
           ]}
         />

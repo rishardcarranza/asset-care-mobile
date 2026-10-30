@@ -3,6 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { Alert } from "react-native";
 import { SyncMetaDao } from "../database/syncMetaDao";
 import { syncService, type SyncResult } from "../services/syncService";
 
@@ -12,30 +13,42 @@ export const useSync = () => {
     SyncMetaDao.getLastSyncedAt()
   );
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState<boolean>(true);
 
-  const triggerSync = useCallback(async (): Promise<SyncResult> => {
-    setIsSyncing(true);
-    setSyncError(null);
-    try {
-      const result = await syncService.runSync();
-      if (result.success && result.syncedAt) {
-        setLastSyncedAt(result.syncedAt);
-      } else if (!result.success) {
-        setSyncError(result.error || "Sync failed");
+  const triggerSync = useCallback(
+    async (options?: { showAlertOnError?: boolean }): Promise<SyncResult> => {
+      const showAlert = options?.showAlertOnError ?? true;
+      setIsSyncing(true);
+      setSyncError(null);
+      try {
+        const result = await syncService.runSync();
+        if (result.success && result.syncedAt) {
+          setLastSyncedAt(result.syncedAt);
+          setIsOnline(true);
+        } else if (!result.success) {
+          const errMessage = result.error || "Sync failed";
+          setSyncError(errMessage);
+          setIsOnline(false);
+          if (showAlert) {
+            Alert.alert("Sync Failed", errMessage);
+          }
+        }
+        return result;
+      } finally {
+        setIsSyncing(false);
       }
-      return result;
-    } finally {
-      setIsSyncing(false);
-    }
-  }, []);
+    },
+    []
+  );
 
-  // Sync automatically on mount
+  // Background sync automatically on mount (silent on error)
   useEffect(() => {
-    triggerSync();
+    triggerSync({ showAlertOnError: false });
   }, [triggerSync]);
 
   return {
     isSyncing,
+    isOnline,
     lastSyncedAt,
     syncError,
     triggerSync,

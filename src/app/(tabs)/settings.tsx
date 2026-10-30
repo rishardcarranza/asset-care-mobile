@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
 import {
   Button,
   Card,
+  Chip,
   Divider,
+  IconButton,
   List,
   RadioButton,
   Surface,
@@ -16,11 +18,15 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { changeAppLanguage } from "../../i18n";
 import { useSync } from "../../hooks/useSync";
 import { getApiBaseUrl } from "../../api/client";
+import { ApiConfigDialog } from "../../components/ApiConfigDialog";
 
 export default function SettingsScreen() {
   const theme = useTheme();
   const { t, i18n } = useTranslation();
-  const { isSyncing, lastSyncedAt, syncError, triggerSync } = useSync();
+  const { isSyncing, isOnline, lastSyncedAt, syncError, triggerSync } = useSync();
+
+  const [currentApiUrl, setCurrentApiUrl] = useState<string>(getApiBaseUrl());
+  const [isUrlDialogVisible, setIsUrlDialogVisible] = useState<boolean>(false);
 
   const currentLang = i18n.language.startsWith("es") ? "es" : "en";
 
@@ -76,19 +82,19 @@ export default function SettingsScreen() {
         />
         <Card.Content>
           <RadioButton.Group onValueChange={handleLanguageChange} value={currentLang}>
-            <View style={{ flexDirection: "row", alignItems: "center", paddingVertical: 4 }}>
-              <RadioButton value="en" />
-              <Text variant="bodyLarge" style={{ marginLeft: 8 }}>
-                {t("settings.lang_en")} (English)
-              </Text>
-            </View>
-            <Divider style={{ marginVertical: 6 }} />
-            <View style={{ flexDirection: "row", alignItems: "center", paddingVertical: 4 }}>
-              <RadioButton value="es" />
-              <Text variant="bodyLarge" style={{ marginLeft: 8 }}>
-                {t("settings.lang_es")} (Español)
-              </Text>
-            </View>
+            <RadioButton.Item
+              label={`${t("settings.lang_en")} (English)`}
+              value="en"
+              position="leading"
+              labelStyle={{ textAlign: "left", marginLeft: 8 }}
+            />
+            <Divider />
+            <RadioButton.Item
+              label={`${t("settings.lang_es")} (Español)`}
+              value="es"
+              position="leading"
+              labelStyle={{ textAlign: "left", marginLeft: 8 }}
+            />
           </RadioButton.Group>
         </Card.Content>
       </Card>
@@ -98,6 +104,13 @@ export default function SettingsScreen() {
         <Card.Title
           title={t("settings.sync_section")}
           left={(props) => <List.Icon {...props} icon="cloud-sync-outline" />}
+          right={(props) => (
+            <IconButton
+              {...props}
+              icon="pencil"
+              onPress={() => setIsUrlDialogVisible(true)}
+            />
+          )}
         />
         <Card.Content>
           <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 12 }}>
@@ -105,16 +118,45 @@ export default function SettingsScreen() {
           </Text>
 
           <View style={{ marginBottom: 12 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
+              <Chip
+                icon={isOnline ? "wifi-check" : "cloud-off-outline"}
+                compact
+                style={{
+                  backgroundColor: isOnline ? "#E8F5E9" : theme.colors.surfaceVariant,
+                }}
+                textStyle={{
+                  color: isOnline ? "#2E7D32" : theme.colors.outline,
+                  fontWeight: "600",
+                }}
+              >
+                {isOnline ? t("common.online") : t("common.offline_mode")}
+              </Chip>
+            </View>
+
             <Text variant="labelSmall" style={{ color: theme.colors.outline }}>
               {t("common.last_synced", { time: formattedSyncTime })}
             </Text>
             <Text variant="labelSmall" style={{ color: theme.colors.outline, marginTop: 4 }}>
-              API: {getApiBaseUrl()}
+              API: {currentApiUrl}
             </Text>
+            <Text variant="labelSmall" style={{ color: theme.colors.outline, marginTop: 2, fontStyle: "italic" }}>
+              {t("settings.api_attempts_info")}
+            </Text>
+
             {syncError && (
-              <Text variant="labelSmall" style={{ color: theme.colors.error, marginTop: 4 }}>
-                {syncError}
-              </Text>
+              <Surface
+                style={{
+                  marginTop: 8,
+                  padding: 10,
+                  borderRadius: 8,
+                  backgroundColor: theme.colors.errorContainer,
+                }}
+              >
+                <Text variant="bodySmall" style={{ color: theme.colors.onErrorContainer }}>
+                  {syncError}
+                </Text>
+              </Surface>
             )}
           </View>
 
@@ -123,12 +165,19 @@ export default function SettingsScreen() {
             icon="sync"
             loading={isSyncing}
             disabled={isSyncing}
-            onPress={triggerSync}
+            onPress={() => triggerSync({ showAlertOnError: true })}
           >
             {isSyncing ? t("common.syncing") : t("common.sync_now")}
           </Button>
         </Card.Content>
       </Card>
+
+      {/* Modular API Configuration Dialog */}
+      <ApiConfigDialog
+        visible={isUrlDialogVisible}
+        onDismiss={() => setIsUrlDialogVisible(false)}
+        onSave={setCurrentApiUrl}
+      />
     </ScrollView>
   );
 }

@@ -40,4 +40,38 @@ export const SyncMetaDao = {
       console.warn("[SyncMetaDao] Could not write last_synced_at:", err);
     }
   },
+
+  /**
+   * Get custom API URL configured by user, if any.
+   */
+  getCustomApiUrl(): string | null {
+    try {
+      const row = db.getFirstSync<MetaRow>(
+        "SELECT value FROM sync_metadata WHERE key = 'custom_api_url'"
+      );
+      return row ? row.value : null;
+    } catch (err) {
+      console.warn("[SyncMetaDao] Could not read custom_api_url:", err);
+      return null;
+    }
+  },
+
+  /**
+   * Set or remove custom API URL.
+   */
+  setCustomApiUrl(url: string | null): void {
+    try {
+      if (!url || url.trim() === "") {
+        db.runSync("DELETE FROM sync_metadata WHERE key = 'custom_api_url'");
+      } else {
+        db.runSync(
+          `INSERT INTO sync_metadata (key, value) VALUES ('custom_api_url', ?)
+           ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+          [url.trim()]
+        );
+      }
+    } catch (err) {
+      console.warn("[SyncMetaDao] Could not write custom_api_url:", err);
+    }
+  },
 };

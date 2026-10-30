@@ -3,6 +3,8 @@
  */
 
 import { Platform } from "react-native";
+import { SyncMetaDao } from "../database/syncMetaDao";
+import { fetchWithRetry } from "./httpClient";
 import type {
   Asset,
   MaintenanceLog,
@@ -10,7 +12,18 @@ import type {
 } from "../types";
 
 export const getApiBaseUrl = (): string => {
-  // Android Emulator uses 10.0.2.2 to access host machine localhost
+  // 1. Check user-defined custom override in local DB
+  const customUrl = SyncMetaDao.getCustomApiUrl();
+  if (customUrl) {
+    return customUrl;
+  }
+
+  // 2. Check explicit environment variable (e.g. for physical devices on LAN)
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  // 3. Android Emulator uses 10.0.2.2 to access host machine localhost
   if (Platform.OS === "android") {
     return "http://10.0.2.2:8001/api/v1";
   }
@@ -43,7 +56,7 @@ export const syncApi = {
    */
   async pull(since: string): Promise<SyncPullResponse> {
     const url = `${getApiBaseUrl()}/sync/pull?since=${encodeURIComponent(since)}`;
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       method: "GET",
       headers: { Accept: "application/json" },
     });
@@ -61,7 +74,7 @@ export const syncApi = {
    */
   async push(payload: SyncPushRequest): Promise<SyncPushResponse> {
     const url = `${getApiBaseUrl()}/sync/push`;
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -32,7 +32,20 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 80
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app needs to access your photos to attach an image to the asset.",
+          "cameraPermission": "The app needs to access your camera to take a photo of the asset."
+        }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-localization",
+      "expo-sqlite",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

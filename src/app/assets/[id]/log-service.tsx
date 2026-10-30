@@ -19,7 +19,7 @@ export default function LogServiceScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const { asset, rules, recordLog } = useAssetDetails(id);
+  const { asset, rules, technicians, recordLog } = useAssetDetails(id);
 
   const payload = (asset?.metadata_payload || {}) as Record<string, unknown>;
   const currentOdo = payload.last_odometer ? String(payload.last_odometer) : "";
@@ -127,14 +127,30 @@ export default function LogServiceScreen() {
             style={{ marginBottom: 12 }}
           />
 
-          <TextInput
-            label={t("log_form.performed_by_label")}
-            placeholder="e.g. Honda Dealer, Self"
-            value={performedBy}
-            onChangeText={setPerformedBy}
-            mode="outlined"
-            style={{ marginBottom: 12 }}
-          />
+          <View>
+            <TextInput
+              label={t("log_form.performed_by_label")}
+              placeholder="e.g. Honda Dealer, Self"
+              value={performedBy}
+              onChangeText={setPerformedBy}
+              mode="outlined"
+              style={{ marginBottom: 4 }}
+            />
+            {technicians && technicians.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+                {technicians.map((tech) => (
+                  <Chip
+                    key={tech}
+                    selected={performedBy === tech}
+                    onPress={() => setPerformedBy(tech)}
+                    style={{ marginRight: 6 }}
+                  >
+                    {tech}
+                  </Chip>
+                ))}
+              </ScrollView>
+            )}
+          </View>
 
           <TextInput
             label={t("log_form.notes_label")}

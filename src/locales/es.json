@@ -133,6 +133,10 @@
     "lang_es": "Español",
     "sync_section": "Sincronización",
     "sync_description": "Tus datos se guardan en este dispositivo (Offline-First) y se sincronizan con la nube de Asset Care.",
+    "api_url_label": "URL del Servidor API",
+    "edit_api_url": "Configurar URL del Servidor",
+    "reset_api_url": "Restablecer por Defecto",
+    "api_attempts_info": "Tiempo límite: 5s • Reintentos: 3 intentos máx",
     "about_section": "Acerca de",
     "version": "Versión 1.0.0 (Offline-First)"
   }

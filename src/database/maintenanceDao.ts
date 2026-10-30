@@ -82,6 +82,19 @@ export const RuleDao = {
     }
   },
 
+  getById(id: string): MaintenanceRule | null {
+    try {
+      const row = db.getFirstSync<RuleRow>(
+        "SELECT * FROM maintenance_rules WHERE id = ?",
+        [id]
+      );
+      return row ? mapRowToRule(row) : null;
+    } catch (err) {
+      console.warn("[RuleDao] Error in getById:", err);
+      return null;
+    }
+  },
+
   upsert(rule: MaintenanceRule, syncStatus: SyncStatus = "pending"): void {
     try {
       db.runSync(
@@ -169,6 +182,18 @@ export const LogDao = {
     }
   },
 
+  getDistinctTechnicians(): string[] {
+    try {
+      const rows = db.getAllSync<{ performed_by: string }>(
+        "SELECT DISTINCT performed_by FROM maintenance_logs WHERE performed_by IS NOT NULL AND performed_by != '' AND is_deleted = 0 ORDER BY performed_by ASC"
+      );
+      return rows.map((r) => r.performed_by);
+    } catch (err) {
+      console.warn("[LogDao] Error in getDistinctTechnicians:", err);
+      return [];
+    }
+  },
+
   getLatestForType(assetId: string, maintenanceType: string): MaintenanceLog | null {
     try {
       const row = db.getFirstSync<LogRow>(
@@ -178,6 +203,19 @@ export const LogDao = {
       return row ? mapRowToLog(row) : null;
     } catch (err) {
       console.warn("[LogDao] Error in getLatestForType:", err);
+      return null;
+    }
+  },
+
+  getById(id: string): MaintenanceLog | null {
+    try {
+      const row = db.getFirstSync<LogRow>(
+        "SELECT * FROM maintenance_logs WHERE id = ?",
+        [id]
+      );
+      return row ? mapRowToLog(row) : null;
+    } catch (err) {
+      console.warn("[LogDao] Error in getById:", err);
       return null;
     }
   },

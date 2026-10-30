@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 
 import { useAssets } from "../../hooks/useAssets";
 import type { AssetType } from "../../types";
+import ImagePickerButton from "../../components/ImagePickerButton";
+import { saveImageToDocumentDirectory } from "../../services/imageService";
 
 export default function NewAssetScreen() {
   const theme = useTheme();
@@ -45,8 +47,9 @@ export default function NewAssetScreen() {
   const [modelNumber, setModelNumber] = useState<string>("");
 
   const [hasError, setHasError] = useState<boolean>(false);
+  const [tempImageUri, setTempImageUri] = useState<string | null>(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim()) {
       setHasError(true);
       return;
@@ -73,6 +76,13 @@ export default function NewAssetScreen() {
       if (modelNumber.trim()) payload.model_number = modelNumber.trim();
     }
 
+    if (tempImageUri) {
+      const savedFilename = await saveImageToDocumentDirectory(tempImageUri);
+      if (savedFilename) {
+        payload.image_uri = savedFilename;
+      }
+    }
+
     createAsset({
       name: name.trim(),
       asset_type: assetType,
@@ -88,6 +98,8 @@ export default function NewAssetScreen() {
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
     >
+      <ImagePickerButton imageUri={tempImageUri} onImageSelected={setTempImageUri} />
+
       {/* Category Selector */}
       <Text variant="labelLarge" style={{ marginBottom: 8, fontWeight: "600" }}>
         {t("asset_form.category_label")}

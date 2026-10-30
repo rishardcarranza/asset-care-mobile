@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { FlatList, RefreshControl, ScrollView, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import {
   Badge,
   Card,
@@ -17,6 +17,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAssets, type AssetWithHealth } from "../../hooks/useAssets";
 import { useSync } from "../../hooks/useSync";
 import type { AssetType } from "../../types";
+import { getAbsoluteImageUri } from "../../services/imageService";
 
 const getCategoryIcon = (type: AssetType): keyof typeof MaterialCommunityIcons.glyphMap => {
   switch (type) {
@@ -40,7 +41,13 @@ export default function DashboardScreen() {
 
   const [selectedCategory, setSelectedCategory] = useState<AssetType | undefined>(undefined);
   const { items, isLoading, refresh } = useAssets(selectedCategory);
-  const { isSyncing, triggerSync } = useSync();
+  const { isSyncing, isOnline, triggerSync } = useSync();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   const handleRefresh = async () => {
     refresh();
@@ -79,51 +86,66 @@ export default function DashboardScreen() {
         ? `${payload.btu} BTU`
         : asset.description || "";
 
+    const imageUri = payload.image_uri ? getAbsoluteImageUri(String(payload.image_uri)) : null;
+
     return (
       <Card
         mode="elevated"
-        style={{ marginHorizontal: 16, marginBottom: 12, backgroundColor: theme.colors.surface }}
+        style={{ marginHorizontal: 16, marginBottom: 16, backgroundColor: theme.colors.surface, overflow: "hidden" }}
         onPress={() => router.push(`/assets/${asset.id}` as any)}
       >
+        {imageUri ? (
+          <View style={{ position: "relative" }}>
+            <Card.Cover source={{ uri: imageUri }} style={{ height: 200, borderRadius: 0 }} />
+            {Boolean(payload.license_plate) && (
+              <View style={{ position: "absolute", bottom: 12, left: 16, backgroundColor: "rgba(0,0,0,0.7)", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6 }}>
+                <Text variant="labelMedium" style={{ color: "#FFF", fontWeight: "bold" }}>
+                  Placa: {String(payload.license_plate)}
+                </Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <Surface
+            style={{
+              height: 120,
+              backgroundColor: theme.colors.surfaceVariant,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <MaterialCommunityIcons
+              name={getCategoryIcon(asset.asset_type)}
+              size={64}
+              color={theme.colors.outline}
+            />
+          </Surface>
+        )}
+        
         <Card.Title
           title={asset.name}
-          titleVariant="titleMedium"
-          titleStyle={{ fontWeight: "700" }}
+          titleVariant="titleLarge"
+          titleStyle={{ fontWeight: "bold", marginTop: 4 }}
           subtitle={`${t(`categories.${asset.asset_type}`)} • ${telemetry}`}
           subtitleStyle={{ color: theme.colors.onSurfaceVariant }}
-          left={(props) => (
-            <Surface
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 22,
-                backgroundColor: theme.colors.primaryContainer,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <MaterialCommunityIcons
-                name={getCategoryIcon(asset.asset_type)}
-                size={24}
-                color={theme.colors.onPrimaryContainer}
-              />
-            </Surface>
-          )}
           right={(props) => (
-            <View style={{ marginRight: 16, alignItems: "flex-end" }}>
+            <View style={{ marginRight: 16, alignItems: "flex-end", justifyContent: "center" }}>
               <Badge
                 style={{
-                  backgroundColor: statusColor,
-                  color: "#FFFFFF",
+                  backgroundColor: "transparent",
+                  color: statusColor,
                   fontWeight: "bold",
-                  paddingHorizontal: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 4,
+                  borderWidth: 1,
+                  borderColor: statusColor,
+                  borderRadius: 16,
+                  height: 28,
+                  fontSize: 13,
                 }}
               >
                 {statusText}
               </Badge>
-              <Text variant="labelSmall" style={{ marginTop: 4, color: theme.colors.outline }}>
-                {health.rules_count} {t("asset_detail.rules_tab")}
-              </Text>
             </View>
           )}
         />
@@ -146,16 +168,27 @@ export default function DashboardScreen() {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <MaterialCommunityIcons name="shield-check-outline" size={20} color={theme.colors.primary} />
-          <Text variant="labelMedium" style={{ marginLeft: 6, fontWeight: "600", color: theme.colors.primary }}>
-            {t("common.offline_mode")}
+          <MaterialCommunityIcons
+            name={isOnline ? "wifi-check" : "cloud-off-outline"}
+            size={20}
+            color={isOnline ? "#2E7D32" : theme.colors.outline}
+          />
+          <Text
+            variant="labelMedium"
+            style={{
+              marginLeft: 6,
+              fontWeight: "600",
+              color: isOnline ? "#2E7D32" : theme.colors.outline,
+            }}
+          >
+            {isOnline ? t("common.online") : t("common.offline_mode")}
           </Text>
         </View>
 
         <Chip
           icon={isSyncing ? "sync" : "cloud-check-outline"}
           compact
-          onPress={triggerSync}
+          onPress={() => triggerSync({ showAlertOnError: true })}
           style={{ backgroundColor: theme.colors.surfaceVariant }}
         >
           {isSyncing ? t("common.syncing") : t("common.sync_now")}
@@ -241,14 +274,13 @@ export default function DashboardScreen() {
                 {t("dashboard.empty_subtitle")}
               </Text>
             </View>
-          ) : null
+          ) : undefined
         }
       />
 
       {/* Floating Action Button to Add New Asset */}
       <FAB
         icon="plus"
-        label={t("dashboard.add_first_asset")}
         style={{
           position: "absolute",
           margin: 16,

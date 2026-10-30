@@ -1,0 +1,323 @@
+import React, { useState, useEffect } from "react";
+import { ScrollView, View } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import {
+  Button,
+  Card,
+  HelperText,
+  SegmentedButtons,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
+import { useTranslation } from "react-i18next";
+
+import { useAssetDetails } from "../../../hooks/useAssetDetails";
+import { useAssets } from "../../../hooks/useAssets";
+import type { AssetType } from "../../../types";
+import ImagePickerButton from "../../../components/ImagePickerButton";
+import { saveImageToDocumentDirectory, getAbsoluteImageUri } from "../../../services/imageService";
+
+export default function EditAssetScreen() {
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  
+  const { asset } = useAssetDetails(id);
+  const { updateAsset } = useAssets();
+
+  // Form State
+  const [assetType, setAssetType] = useState<AssetType>("vehicle");
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  // Vehicle & Motorcycle Telemetry
+  const [odometer, setOdometer] = useState<string>("");
+  const [engine, setEngine] = useState<string>("");
+  const [oilType, setOilType] = useState<string>("");
+
+  // Motorcycle specific
+  const [displacement, setDisplacement] = useState<string>("");
+  const [driveType, setDriveType] = useState<string>("chain");
+  const [coolingType, setCoolingType] = useState<string>("air");
+
+  // HVAC specific
+  const [btu, setBtu] = useState<string>("");
+  const [refrigerant, setRefrigerant] = useState<string>("");
+
+  // Appliance specific
+  const [brand, setBrand] = useState<string>("");
+  const [modelNumber, setModelNumber] = useState<string>("");
+
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [tempImageUri, setTempImageUri] = useState<string | null>(null);
+  const [originalImageFilename, setOriginalImageFilename] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (asset) {
+      setAssetType(asset.asset_type);
+      setName(asset.name);
+      setDescription(asset.description || "");
+
+      const payload = (asset.metadata_payload || {}) as Record<string, unknown>;
+      
+      if (payload.image_uri) {
+        setOriginalImageFilename(String(payload.image_uri));
+        setTempImageUri(getAbsoluteImageUri(String(payload.image_uri)));
+      }
+
+      if (payload.last_odometer) setOdometer(String(payload.last_odometer));
+      if (payload.engine) setEngine(String(payload.engine));
+      if (payload.oil_type) setOilType(String(payload.oil_type));
+      if (payload.displacement_cc) setDisplacement(String(payload.displacement_cc));
+      if (payload.drive_type) setDriveType(String(payload.drive_type));
+      if (payload.cooling_type) setCoolingType(String(payload.cooling_type));
+      if (payload.btu) setBtu(String(payload.btu));
+      if (payload.refrigerant) setRefrigerant(String(payload.refrigerant));
+      if (payload.brand) setBrand(String(payload.brand));
+      if (payload.model_number) setModelNumber(String(payload.model_number));
+    }
+  }, [asset]);
+
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      setHasError(true);
+      return;
+    }
+
+    const payload: Record<string, unknown> = {
+      ...(asset?.metadata_payload || {}), // Keep existing unseen props
+    };
+
+    if (assetType === "vehicle" || assetType === "motorcycle") {
+      payload.last_odometer = parseFloat(odometer) || 0;
+      payload.odometer_unit = "km";
+      if (engine.trim()) payload.engine = engine.trim();
+      if (oilType.trim()) payload.oil_type = oilType.trim();
+
+      if (assetType === "motorcycle") {
+        if (displacement) payload.displacement_cc = parseInt(displacement, 10);
+        payload.drive_type = driveType;
+        payload.cooling_type = coolingType;
+      }
+    } else if (assetType === "hvac") {
+      if (btu) payload.btu = parseInt(btu, 10);
+      if (refrigerant.trim()) payload.refrigerant = refrigerant.trim();
+    } else if (assetType === "appliance") {
+      if (brand.trim()) payload.brand = brand.trim();
+      if (modelNumber.trim()) payload.model_number = modelNumber.trim();
+    }
+
+    // Only save new file if uri changed and is not the original absolute URL
+    if (tempImageUri && tempImageUri !== getAbsoluteImageUri(originalImageFilename || "")) {
+      const savedFilename = await saveImageToDocumentDirectory(tempImageUri);
+      if (savedFilename) {
+        payload.image_uri = savedFilename;
+      }
+    } else if (!tempImageUri && originalImageFilename) {
+      // User deleted the image
+      payload.image_uri = null;
+    }
+
+    updateAsset(id, {
+      name: name.trim(),
+      asset_type: assetType,
+      description: description.trim() || null,
+      metadata_payload: payload,
+    });
+
+    router.back();
+  };
+
+  if (!asset) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+    >
+      <ImagePickerButton imageUri={tempImageUri} onImageSelected={setTempImageUri} />
+
+      <Text variant="labelLarge" style={{ marginBottom: 8, fontWeight: "600" }}>
+        {t("asset_form.category_label")}
+      </Text>
+      <SegmentedButtons
+        value={assetType}
+        onValueChange={(val) => setAssetType(val as AssetType)}
+        buttons={[
+          { value: "vehicle", label: t("categories.vehicle"), icon: "car-side" },
+          { value: "motorcycle", label: t("categories.motorcycle"), icon: "motorbike" },
+          { value: "hvac", label: t("categories.hvac"), icon: "air-conditioner" },
+          { value: "appliance", label: t("categories.appliance"), icon: "washing-machine" },
+        ]}
+        style={{ marginBottom: 16 }}
+      />
+
+      <Card mode="elevated" style={{ marginBottom: 16, backgroundColor: theme.colors.surface }}>
+        <Card.Title title={t("asset_form.general_section")} />
+        <Card.Content>
+          <TextInput
+            label={t("asset_form.name_label")}
+            placeholder={t("asset_form.name_placeholder")}
+            value={name}
+            onChangeText={(txt) => {
+              setName(txt);
+              if (hasError) setHasError(false);
+            }}
+            error={hasError}
+            mode="outlined"
+            style={{ marginBottom: 4 }}
+          />
+          {hasError && (
+            <HelperText type="error" visible={hasError}>
+              {t("asset_form.name_label")} is required
+            </HelperText>
+          )}
+
+          <TextInput
+            label={t("asset_form.description_label")}
+            placeholder={t("asset_form.description_placeholder")}
+            value={description}
+            onChangeText={setDescription}
+            mode="outlined"
+            multiline
+            numberOfLines={2}
+            style={{ marginTop: 8 }}
+          />
+        </Card.Content>
+      </Card>
+
+      <Card mode="elevated" style={{ marginBottom: 24, backgroundColor: theme.colors.surface }}>
+        <Card.Title title={t("asset_form.telemetry_section")} />
+        <Card.Content>
+          {(assetType === "vehicle" || assetType === "motorcycle") && (
+            <>
+              <TextInput
+                label={t("asset_form.odometer_label")}
+                placeholder="e.g. 45000"
+                value={odometer}
+                onChangeText={setOdometer}
+                keyboardType="numeric"
+                mode="outlined"
+                right={<TextInput.Affix text="km" />}
+                style={{ marginBottom: 12 }}
+              />
+
+              {assetType === "motorcycle" && (
+                <>
+                  <TextInput
+                    label={t("asset_form.displacement_label")}
+                    placeholder="e.g. 250, 373, 689"
+                    value={displacement}
+                    onChangeText={setDisplacement}
+                    keyboardType="numeric"
+                    mode="outlined"
+                    right={<TextInput.Affix text="cc" />}
+                    style={{ marginBottom: 12 }}
+                  />
+
+                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>
+                    {t("asset_form.drive_type_label")}
+                  </Text>
+                  <SegmentedButtons
+                    value={driveType}
+                    onValueChange={setDriveType}
+                    buttons={[
+                      { value: "chain", label: t("asset_form.drive_type_chain") },
+                      { value: "belt", label: t("asset_form.drive_type_belt") },
+                      { value: "shaft", label: t("asset_form.drive_type_shaft") },
+                    ]}
+                    style={{ marginBottom: 12 }}
+                  />
+
+                  <Text variant="labelMedium" style={{ marginBottom: 4 }}>
+                    {t("asset_form.cooling_type_label")}
+                  </Text>
+                  <SegmentedButtons
+                    value={coolingType}
+                    onValueChange={setCoolingType}
+                    buttons={[
+                      { value: "air", label: t("asset_form.cooling_type_air") },
+                      { value: "liquid", label: t("asset_form.cooling_type_liquid") },
+                      { value: "oil", label: t("asset_form.cooling_type_oil") },
+                    ]}
+                    style={{ marginBottom: 12 }}
+                  />
+                </>
+              )}
+
+              <TextInput
+                label={t("asset_form.oil_type_label")}
+                placeholder={t("asset_form.oil_type_placeholder")}
+                value={oilType}
+                onChangeText={setOilType}
+                mode="outlined"
+                style={{ marginBottom: 12 }}
+              />
+
+              <TextInput
+                label={t("asset_form.engine_label")}
+                placeholder="e.g. Inline-4, G4KE, CP2"
+                value={engine}
+                onChangeText={setEngine}
+                mode="outlined"
+              />
+            </>
+          )}
+
+          {assetType === "hvac" && (
+            <>
+              <TextInput
+                label={t("asset_form.btu_label")}
+                placeholder="e.g. 12000, 18000, 24000"
+                value={btu}
+                onChangeText={setBtu}
+                keyboardType="numeric"
+                mode="outlined"
+                style={{ marginBottom: 12 }}
+              />
+              <TextInput
+                label={t("asset_form.refrigerant_label")}
+                placeholder="e.g. R410A, R32"
+                value={refrigerant}
+                onChangeText={setRefrigerant}
+                mode="outlined"
+              />
+            </>
+          )}
+
+          {assetType === "appliance" && (
+            <>
+              <TextInput
+                label={t("asset_form.brand_label")}
+                placeholder="e.g. Samsung, LG, Whirlpool"
+                value={brand}
+                onChangeText={setBrand}
+                mode="outlined"
+                style={{ marginBottom: 12 }}
+              />
+              <TextInput
+                label={t("asset_form.model_label")}
+                placeholder="e.g. WF45T6000AW"
+                value={modelNumber}
+                onChangeText={setModelNumber}
+                mode="outlined"
+              />
+            </>
+          )}
+        </Card.Content>
+      </Card>
+
+      <Button mode="contained" icon="content-save" onPress={handleSubmit} style={{ paddingVertical: 4 }}>
+        Edit
+      </Button>
+    </ScrollView>
+  );
+}

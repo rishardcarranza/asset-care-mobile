@@ -26,7 +26,11 @@ export default function TabLayout() {
         options={{
           title: t("nav.dashboard"),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="view-dashboard-outline" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="view-dashboard-outline"
+              color={typeof color === "string" ? color : theme.colors.primary}
+              size={size}
+            />
           ),
         }}
       />
@@ -35,7 +39,11 @@ export default function TabLayout() {
         options={{
           title: t("nav.settings"),
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="cog-outline" color={color} size={size} />
+            <MaterialCommunityIcons
+              name="cog-outline"
+              color={typeof color === "string" ? color : theme.colors.primary}
+              size={size}
+            />
           ),
         }}
       />

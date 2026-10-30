@@ -48,9 +48,10 @@ export default function RootLayout() {
           headerStyle: { backgroundColor: theme.colors.primary },
           headerTintColor: theme.colors.onPrimary,
           headerTitleStyle: { fontWeight: "bold" },
+          headerBackTitle: " ",
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "" }} />
         <Stack.Screen
           name="assets/new"
           options={{ presentation: "modal", headerTitle: "Asset Care" }}
@@ -60,12 +61,24 @@ export default function RootLayout() {
           options={{ headerTitle: "Asset Care" }}
         />
         <Stack.Screen
+          name="assets/[id]/edit"
+          options={{ presentation: "modal", headerTitle: "Edit Asset" }}
+        />
+        <Stack.Screen
           name="assets/[id]/new-rule"
           options={{ presentation: "modal", headerTitle: "Asset Care" }}
         />
         <Stack.Screen
+          name="assets/[id]/edit-rule"
+          options={{ presentation: "modal", headerTitle: "Edit Rule" }}
+        />
+        <Stack.Screen
           name="assets/[id]/log-service"
           options={{ presentation: "modal", headerTitle: "Asset Care" }}
+        />
+        <Stack.Screen
+          name="assets/[id]/edit-log"
+          options={{ presentation: "modal", headerTitle: "Edit Service" }}
         />
       </Stack>
     </PaperProvider>
