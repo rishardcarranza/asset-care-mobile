@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Alert, ScrollView, View } from "react-native";
 import {
   Button,
   Card,
@@ -18,6 +18,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { changeAppLanguage } from "../../i18n";
 import { useSync } from "../../hooks/useSync";
 import { getApiBaseUrl } from "../../api/client";
+import { clearLocalDatabase } from "../../database/db";
 import { ApiConfigDialog } from "../../components/ApiConfigDialog";
 
 export default function SettingsScreen() {
@@ -168,6 +169,29 @@ export default function SettingsScreen() {
             onPress={() => triggerSync({ showAlertOnError: true })}
           >
             {isSyncing ? t("common.syncing") : t("common.sync_now")}
+          </Button>
+
+          <Button
+            mode="outlined"
+            icon="database-remove-outline"
+            textColor={theme.colors.error}
+            style={{ marginTop: 10, borderColor: theme.colors.error }}
+            onPress={() => {
+              Alert.alert(t("settings.reset_db_confirm_title"), t("settings.reset_db_confirm_msg"), [
+                { text: t("common.cancel"), style: "cancel" },
+                {
+                  text: t("common.delete"),
+                  style: "destructive",
+                  onPress: () => {
+                    clearLocalDatabase();
+                    setCurrentApiUrl(getApiBaseUrl());
+                    Alert.alert(t("app_name"), t("settings.reset_db_success"));
+                  },
+                },
+              ]);
+            }}
+          >
+            {t("settings.reset_db_button")}
           </Button>
         </Card.Content>
       </Card>

@@ -137,6 +137,10 @@
     "edit_api_url": "Configurar URL del Servidor",
     "reset_api_url": "Restablecer por Defecto",
     "api_attempts_info": "Tiempo límite: 5s • Reintentos: 3 intentos máx",
+    "reset_db_button": "Borrar Base de Datos Local",
+    "reset_db_confirm_title": "¿Borrar datos locales?",
+    "reset_db_confirm_msg": "Esto eliminará todos los registros locales y restablecerá la URL del servidor por defecto.",
+    "reset_db_success": "Base de datos local borrada correctamente.",
     "about_section": "Acerca de",
     "version": "Versión 1.0.0 (Offline-First)"
   }

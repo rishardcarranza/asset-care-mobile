@@ -8,9 +8,11 @@
     "scheme": "assetcare",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.rishardcarranza.assetcare",
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.rishardcarranza.assetcare",
       "adaptiveIcon": {
         "backgroundColor": "#00636E",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

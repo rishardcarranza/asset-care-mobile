@@ -81,5 +81,21 @@ export const initLocalDatabase = (): void => {
   }
 };
 
+/**
+ * Wipe all local tables (assets, rules, logs, sync_metadata) to reset device state.
+ */
+export const clearLocalDatabase = (): void => {
+  try {
+    db.execSync(`
+      DELETE FROM maintenance_logs;
+      DELETE FROM maintenance_rules;
+      DELETE FROM assets;
+      DELETE FROM sync_metadata;
+    `);
+  } catch (error) {
+    console.error("[Database] Error clearing local SQLite database:", error);
+  }
+};
+
 // Immediately execute schema setup so tables are available before any query runs
 initLocalDatabase();
