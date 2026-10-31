@@ -58,7 +58,18 @@ export const syncService = {
       const pullResult = await syncApi.pull(lastSynced);
 
       // 4. Upsert incoming records into local SQLite
+      // Preserve local-only image_uri if server schema did not return one
       for (const asset of pullResult.assets) {
+        const existingLocal = AssetDao.getById(asset.id);
+        const localMeta = (existingLocal?.metadata_payload || {}) as Record<string, unknown>;
+        const incomingMeta = (asset.metadata_payload || {}) as Record<string, unknown>;
+
+        if (localMeta.image_uri && !incomingMeta.image_uri) {
+          asset.metadata_payload = {
+            ...incomingMeta,
+            image_uri: localMeta.image_uri,
+          };
+        }
         AssetDao.upsert(asset, "synced");
       }
       for (const rule of pullResult.maintenance_rules) {

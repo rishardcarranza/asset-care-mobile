@@ -12,6 +12,9 @@ export type MaintenanceStatus = "ok" | "due_soon" | "overdue";
 export type SyncStatus = "synced" | "pending";
 
 export interface VehicleMetadata {
+  image_uri?: string | null;
+  usage_hours?: number | null;
+  license_plate?: string | null;
   engine?: string | null;
   oil_type?: string | null;
   last_odometer: number;
@@ -21,6 +24,9 @@ export interface VehicleMetadata {
 }
 
 export interface MotorcycleMetadata {
+  image_uri?: string | null;
+  usage_hours?: number | null;
+  license_plate?: string | null;
   displacement_cc?: number | null;
   drive_type: "chain" | "belt" | "shaft";
   cooling_type: "air" | "liquid" | "oil";
@@ -33,6 +39,8 @@ export interface MotorcycleMetadata {
 }
 
 export interface HVACMetadata {
+  image_uri?: string | null;
+  usage_hours?: number | null;
   btu?: number | null;
   refrigerant?: string | null;
   filter_type?: string | null;
@@ -40,6 +48,8 @@ export interface HVACMetadata {
 }
 
 export interface ApplianceMetadata {
+  image_uri?: string | null;
+  usage_hours?: number | null;
   brand?: string | null;
   model_number?: string | null;
   serial_number?: string | null;

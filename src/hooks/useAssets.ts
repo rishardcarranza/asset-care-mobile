@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AssetDao } from "../database/assetDao";
 import { LogDao, RuleDao } from "../database/maintenanceDao";
 import { calculateAssetHealth } from "../services/healthCalculator";
+import { syncService } from "../services/syncService";
 import type {
   Asset,
   AssetHealthReport,
@@ -79,6 +80,7 @@ export const useAssets = (filterType?: AssetType) => {
 
       AssetDao.upsert(newAsset, "pending");
       loadAssets();
+      void syncService.runSync();
       return newAsset;
     },
     [loadAssets]
@@ -110,6 +112,7 @@ export const useAssets = (filterType?: AssetType) => {
 
       AssetDao.upsert(updatedAsset, "pending");
       loadAssets();
+      void syncService.runSync();
       return updatedAsset;
     },
     [loadAssets]
@@ -119,6 +122,7 @@ export const useAssets = (filterType?: AssetType) => {
     (id: string): void => {
       AssetDao.softDelete(id);
       loadAssets();
+      void syncService.runSync();
     },
     [loadAssets]
   );

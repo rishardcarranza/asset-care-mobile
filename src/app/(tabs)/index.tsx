@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { FlatList, RefreshControl, ScrollView, View } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import {
@@ -41,7 +41,7 @@ export default function DashboardScreen() {
 
   const [selectedCategory, setSelectedCategory] = useState<AssetType | undefined>(undefined);
   const { items, isLoading, refresh } = useAssets(selectedCategory);
-  const { isSyncing, isOnline, triggerSync } = useSync();
+  const { isSyncing, isOnline, lastSyncedAt, triggerSync } = useSync();
 
   useFocusEffect(
     useCallback(() => {
@@ -49,9 +49,15 @@ export default function DashboardScreen() {
     }, [refresh])
   );
 
+  useEffect(() => {
+    if (lastSyncedAt) {
+      refresh();
+    }
+  }, [lastSyncedAt, refresh]);
+
   const handleRefresh = async () => {
-    refresh();
     await triggerSync();
+    refresh();
   };
 
   const overdueCount = items.filter((i) => i.health.overall_status === "overdue").length;

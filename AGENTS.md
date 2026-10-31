@@ -48,3 +48,6 @@
 - **Docstrings of Intent:** Document complex synchronization, offline caching, and data mapping logic explaining the *why*, not just the *what*.
 - **File Size Constraint:** Strictly split and refactor any file exceeding 200 lines into smaller sub-modules or hooks.
 - **Language:** Code identifiers, comments, types, and commit messages must be in technical English.
+- **Git & Branching Policy (STRICT):**
+  - Always develop on the `develop` branch.
+  - **NEVER** run `git commit`, `git push`, or `git merge`, and **NEVER** switch to or push to `main`. All Git commits, pushes, and merges from `develop` to `main` are performed exclusively and manually by the user.

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AssetDao } from "../database/assetDao";
 import { LogDao, RuleDao } from "../database/maintenanceDao";
 import { calculateAssetHealth } from "../services/healthCalculator";
+import { syncService } from "../services/syncService";
 import { generateUUID } from "./useAssets";
 import type {
   Asset,
@@ -73,6 +74,7 @@ export const useAssetDetails = (assetId: string) => {
 
       RuleDao.upsert(newRule, "pending");
       loadData();
+      void syncService.runSync();
     },
     [assetId, loadData]
   );
@@ -105,6 +107,7 @@ export const useAssetDetails = (assetId: string) => {
 
       RuleDao.upsert(updatedRule, "pending");
       loadData();
+      void syncService.runSync();
     },
     [loadData]
   );
@@ -113,6 +116,7 @@ export const useAssetDetails = (assetId: string) => {
     (ruleId: string) => {
       RuleDao.softDelete(ruleId);
       loadData();
+      void syncService.runSync();
     },
     [loadData]
   );
@@ -163,6 +167,7 @@ export const useAssetDetails = (assetId: string) => {
       }
 
       loadData();
+      void syncService.runSync();
     },
     [asset, assetId, loadData]
   );
@@ -217,6 +222,7 @@ export const useAssetDetails = (assetId: string) => {
       }
 
       loadData();
+      void syncService.runSync();
     },
     [asset, loadData]
   );
@@ -225,6 +231,7 @@ export const useAssetDetails = (assetId: string) => {
     (logId: string) => {
       LogDao.softDelete(logId);
       loadData();
+      void syncService.runSync();
     },
     [loadData]
   );

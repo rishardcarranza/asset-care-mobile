@@ -39,6 +39,9 @@ yarn-error.*
 
 example
 
-# generated native folders
+# generated native folders & binaries
 /ios
 /android
+/Para_SideStore
+*.ipa
+*.apk
